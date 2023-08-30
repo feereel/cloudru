@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-python
+  namespace: web-python
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: web-python
+  template:
+    metadata:
+      labels:
+        app: web-python
+    spec:
+      containers:
+      - name: web-python
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        env:
+        - name: UUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        - name: AUTHOR
+          value: {{ .Values.env.AUTHOR }}
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "501m"
+        ports:
+        - containerPort: 8000
+        livenessProbe:
+          httpGet:
+            path: /hostname
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /hostname
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+
+
+

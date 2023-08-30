@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-python
+  namespace: web-python
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-python
+  template:
+    metadata:
+      labels:
+        app: web-python
+    spec:
+      containers:
+      - name: web-python
+        image: stancej/web-python
+        env:
+        - name: UUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "501m"
+        ports:
+        - containerPort: 8000
+        livenessProbe:
+          httpGet:
+            path: /hostname
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /hostname
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+
+
